@@ -1,5 +1,9 @@
-const request = require("request-promise");
+// const request = require("request-promise");
+
+const request = require('requestretry').defaults({fullResponse: false}) //full response => false, it only returns HTML String.
+
 const cheerio = require("cheerio");
+const ObjectsToCsv = require('object-to-csv')
 
 const url = "https://sfbay.craigslist.org/d/software-qa-dba-etc/search/sof";
 
@@ -72,6 +76,14 @@ async function scrapeDescription(jobsWithHeaders) {
 async function scrapeCraigslist() {
   const jobsWithHeaders = await scrapeJobHeader();
   const jobsFullData = await scrapeDescription(jobsWithHeaders);
+  await createCSVFile(jobsFullData)
+}
+
+//parsing DATA into CSV
+async function createCSVFile(data) {
+  let csv = new ObjectsToCsv(data)
+  await csv.toDisk('./test.csv')
+  console.log(await csv.toString())
 }
 
 scrapeCraigslist();
